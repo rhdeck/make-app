@@ -1,0 +1,32 @@
+{
+  "name": "make-app",
+  "version": "1.0.0",
+  "description": "Generic creator for app packages",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/rhdeck/make-app.git"
+  },
+  "author": "Ray Deck",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/rhdeck/make-app/issues"
+  },
+  "homepage": "https://github.com/rhdeck/make-app#readme",
+  "dependencies": {
+    "@raydeck/walk-dependencies": "^1.0.0",
+    "package-template": "^1.4.0",
+    "recursive-copy": "^2.0.8",
+    "yarnif": "^1.1.0"
+  },
+  "makeApp": {
+    "initializer": "makePackage"
+  },
+  "bin": {
+    "makePackage": "bin/makePackage.js",
+    "initApp": "bin/initApp.js"
+  }
+}
