@@ -102,7 +102,7 @@ function buildApp(packageName, target, args) {
       const v = ma.dependencies[k];
       yarnif.addDependency(v);
     });
-  if (typeof ma.dependencies == "object")
+  if (typeof ma.devDependencies == "object")
     Object.keys(ma.devDependencies).forEach(k => {
       const v = ma.devDependencies[k];
       yarnif.addDevDependency(v);
