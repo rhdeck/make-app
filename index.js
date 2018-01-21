@@ -23,7 +23,7 @@ function runFromCommand(cmd) {
   if (cmd) {
     if (typeof cmd == "string") {
       console.log("running command", cmd);
-      cp.execSync(cmd, spawnOptions);
+      cp.execSync(cmd, getSpawnOptions());
     } else if (cmd.length) {
       cmd.forEach(v => {
         runFromCommand(v);
@@ -99,7 +99,7 @@ function buildApp(packageName, target, args) {
     cp.spawnSync(
       ma.initializer.command,
       [...ma.initializer.args, target],
-      spawnOptions
+      getSpawnOptions()
     );
   } else {
     throw { message: "Could not get an initializer", obj: ma };
