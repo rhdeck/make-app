@@ -20,7 +20,7 @@
     "@raydeck/walk-dependencies": "rhdeck/walk-dependencies",
     "package-template": "^1.4.0",
     "recursive-copy": "^2.0.8",
-    "yarnif": "^1.1.0"
+    "yarnif": "^1.4.0"
   },
   "makeApp": {
     "initializer": {

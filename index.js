@@ -28,9 +28,11 @@ function runFromCommand(cmd) {
       cmd.forEach(v => {
         runFromCommand(v);
       });
-    } else {
+    } else if (cmd.command) {
       console.log("Spawning command", cmd);
       cp.spawnSync(cmd.command, cmd.args, getSpawnOptions());
+    } else {
+      console.log("Was passed invalid command", cmd);
     }
   }
 }
@@ -109,12 +111,12 @@ function buildApp(packageName, target, args) {
   if (typeof ma.dependencies == "object")
     Object.keys(ma.dependencies).forEach(k => {
       const v = ma.dependencies[k];
-      yarnif.addDependency(v);
+      yarnif.addDependency(k, v);
     });
   if (typeof ma.devDependencies == "object")
     Object.keys(ma.devDependencies).forEach(k => {
       const v = ma.devDependencies[k];
-      yarnif.addDevDependency(v);
+      yarnif.addDevDependency(k, v);
     });
 
   const packagePath = Path.resolve(process.cwd(), "package.json");
