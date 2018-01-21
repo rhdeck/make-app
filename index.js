@@ -74,22 +74,22 @@ function buildApp(packageName, target, args) {
   });
   console.log("Final ma: ", ma);
   //First create the package. Do you have a creation option for me, or do I do this
-  // if (ma.initializer) {
-  //   if (typeof ma.initializer == "string") {
-  //     ma.initializer = {
-  //       command: ma.initializer,
-  //       args: null
-  //     };
-  //   }
-  //   ma.initializer.args = ma.initializer.args ? ma.initializer.args : [];
-  //   cp.spawnSync(
-  //     ma.initializer.command,
-  //     [...ma.initializer.args, target],
-  //     spawnOptions
-  //   );
-  // } else {
-  //   throw { message: "Could not get an initializer", obj: ma };
-  // }
+  if (ma.initializer) {
+    if (typeof ma.initializer == "string") {
+      ma.initializer = {
+        command: ma.initializer,
+        args: null
+      };
+    }
+    ma.initializer.args = ma.initializer.args ? ma.initializer.args : [];
+    cp.spawnSync(
+      ma.initializer.command,
+      [...ma.initializer.args, target],
+      spawnOptions
+    );
+  } else {
+    throw { message: "Could not get an initializer", obj: ma };
+  }
   process.chdir(target);
   //All following code will run from the newly created app as CWD
   if (typeof ma.dependencies == "object")
@@ -113,6 +113,7 @@ function buildApp(packageName, target, args) {
       packageObj.scripts[k] = scripts[k];
     });
   });
+  packageObj.makeApp = ma;
   fs.writeFileSync(packagePath, JSON.stringify(packageObj, null, 2));
   yarnif.addDependency("make-app");
   return process.cwd();
