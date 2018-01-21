@@ -16,6 +16,7 @@ getSpawnOptions = function() {
 const yarnif = require("yarnif");
 function subRunner(package, key) {
   if (!(package && package.makeApp)) return;
+  console.log("I was passed ", package.makeApp, key);
   runFromCommand(package.makeApp[key]);
 }
 function runFromCommand(cmd) {
