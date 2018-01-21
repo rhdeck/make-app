@@ -147,6 +147,7 @@ function initApp() {
   */
   console.log("Starting run");
   walkDependencies(process.cwd(), true, (path, package, ancestors) => {
+    console.log("working with path", path);
     subRunner(package, "run");
   });
   console.log("Starting runLate");
