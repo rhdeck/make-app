@@ -15,8 +15,8 @@ getSpawnOptions = function() {
 };
 const yarnif = require("yarnif");
 function subRunner(package, key) {
-  const cmd = package && package.makeApp && package.makeApp[key];
-  runFromCommand(cmd);
+  if (!(package && package.makeApp)) return;
+  runFromCommand(package.makeApp[key]);
 }
 function runFromCommand(cmd) {
   if (!cmd) return;
@@ -25,6 +25,7 @@ function runFromCommand(cmd) {
       console.log("running command", cmd);
       cp.execSync(cmd, getSpawnOptions());
     } else if (cmd.length) {
+      console.log("Found multiple commands", cmd);
       cmd.forEach(v => {
         runFromCommand(v);
       });
