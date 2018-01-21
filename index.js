@@ -135,6 +135,7 @@ function buildApp(packageName, target, args) {
   return process.cwd();
 }
 function initApp() {
+  console.log("Starting initapp");
   //Find the subrunners
   walkDependencies(process.cwd(), true, (path, package, ancestors) => {
     subRunner(package, "runEarly");
