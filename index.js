@@ -5,7 +5,7 @@ const walkDependencies = require("@raydeck/walk-dependencies");
 const spawnOptions = { stdio: "inherit" };
 const yarnif = require("yarnif");
 function subRunner(package, key) {
-  const cmd = package && package.makeApp && ma.package.makeApp[key];
+  const cmd = package && package.makeApp && package.makeApp[key];
   runFromCommand(cmd);
 }
 function runFromCommand(cmd) {
@@ -14,9 +14,13 @@ function runFromCommand(cmd) {
     if (typeof cmd == "string") {
       console.log("running command", cmd);
       cp.execSync(cmd, spawnOptions);
+    } else if (cmd.length) {
+      cmd.forEach(v => {
+        runFromCommand(v);
+      });
     } else {
       console.log("Spawning command", cmd);
-      spawnSync(cmd.command, cmd.args, spawnOptions);
+      cp.spawnSync(cmd.command, cmd.args, spawnOptions);
     }
   }
 }
@@ -74,7 +78,8 @@ function buildApp(packageName, target, args) {
   });
   console.log("Final ma: ", ma);
   //First create the package. Do you have a creation option for me, or do I do this
-  if (ma.initializer) {
+  if (false) {
+  } else if (ma.initializer) {
     if (typeof ma.initializer == "string") {
       ma.initializer = {
         command: ma.initializer,
@@ -103,7 +108,7 @@ function buildApp(packageName, target, args) {
       yarnif.addDevDependency(v);
     });
 
-  const packagePath = Path.resolve(packageName, "package.json");
+  const packagePath = Path.resolve(process.cwd(), "package.json");
   const packageObj = require(packagePath);
   walkDependencies(process.cwd(), true, (path, package, ancestors) => {
     const scripts =
@@ -114,8 +119,10 @@ function buildApp(packageName, target, args) {
     });
   });
   packageObj.makeApp = ma;
+  console.log("I am about to write to the packagePath", packagePath);
   fs.writeFileSync(packagePath, JSON.stringify(packageObj, null, 2));
-  yarnif.addDependency("make-app");
+  const thisPkg = require(Path.resolve(packageName, "package.json"));
+  yarnif.addDependency("link:" + packageName);
   return process.cwd();
 }
 function initApp() {
