@@ -2,7 +2,17 @@ const Path = require("path");
 const fs = require("fs");
 const cp = require("child_process");
 const walkDependencies = require("@raydeck/walk-dependencies");
-const spawnOptions = { stdio: "inherit" };
+
+getSpawnOptions = function() {
+  return {
+    stdio: "inherit",
+    env: {
+      ...process.env,
+      path:
+        process.path + ";" + Path.join(process.cwd(), "node_modules", ".bin")
+    }
+  };
+};
 const yarnif = require("yarnif");
 function subRunner(package, key) {
   const cmd = package && package.makeApp && package.makeApp[key];
@@ -20,7 +30,7 @@ function runFromCommand(cmd) {
       });
     } else {
       console.log("Spawning command", cmd);
-      cp.spawnSync(cmd.command, cmd.args, spawnOptions);
+      cp.spawnSync(cmd.command, cmd.args, getSpawnOptions());
     }
   }
 }
@@ -28,9 +38,9 @@ function runFromCommand(cmd) {
 function buildApp(packageName, target, args) {
   //assume packagename is in my dependencies or is the current package
   const fullTargetPath = Path.join(process.cwd(), target);
-  // if (fs.existsSync(fullTargetPath)) {
-  //   throw fullTargetPath + " already exists";
-  // }
+  if (fs.existsSync(fullTargetPath)) {
+    throw fullTargetPath + " already exists";
+  }
   const defaultPackage = require(Path.join(__dirname, "package.json"));
   var ma = defaultPackage.makeApp;
   console.log("Starting with default", ma);
@@ -78,8 +88,7 @@ function buildApp(packageName, target, args) {
   });
   console.log("Final ma: ", ma);
   //First create the package. Do you have a creation option for me, or do I do this
-  if (false) {
-  } else if (ma.initializer) {
+  if (ma.initializer) {
     if (typeof ma.initializer == "string") {
       ma.initializer = {
         command: ma.initializer,
@@ -122,7 +131,7 @@ function buildApp(packageName, target, args) {
   console.log("I am about to write to the packagePath", packagePath);
   fs.writeFileSync(packagePath, JSON.stringify(packageObj, null, 2));
   const thisPkg = require(Path.resolve(packageName, "package.json"));
-  yarnif.addDependency("make-app");
+  yarnif.addDependency("rhdeck/make-app");
   return process.cwd();
 }
 function initApp() {

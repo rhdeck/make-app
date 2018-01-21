@@ -24,7 +24,7 @@
   },
   "makeApp": {
     "initializer": {
-      "command": "initApp"
+      "command": "makePackage"
     }
   },
   "bin": {
