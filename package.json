@@ -17,13 +17,16 @@
   },
   "homepage": "https://github.com/rhdeck/make-app#readme",
   "dependencies": {
-    "@raydeck/walk-dependencies": "^1.0.0",
+    "@raydeck/walk-dependencies":
+      "link:/Users/ray/Documents/walk-dependencies/",
     "package-template": "^1.4.0",
     "recursive-copy": "^2.0.8",
     "yarnif": "^1.1.0"
   },
   "makeApp": {
-    "initializer": "makePackage"
+    "initializer": {
+      "command": "initApp"
+    }
   },
   "bin": {
     "makePackage": "bin/makePackage.js",

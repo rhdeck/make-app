@@ -12,8 +12,10 @@ function runFromCommand(cmd) {
   if (!cmd) return;
   if (cmd) {
     if (typeof cmd == "string") {
+      console.log("running command", cmd);
       cp.execSync(cmd, spawnOptions);
     } else {
+      console.log("Spawning command", cmd);
       spawnSync(cmd.command, cmd.args, spawnOptions);
     }
   }
@@ -22,65 +24,96 @@ function runFromCommand(cmd) {
 function buildApp(packageName, target, args) {
   //assume packagename is in my dependencies or is the current package
   const fullTargetPath = Path.join(process.cwd(), target);
-  if (fs.existsSync(fullTargetPath)) {
-    throw fullTargetPath + " already exists";
-  }
+  // if (fs.existsSync(fullTargetPath)) {
+  //   throw fullTargetPath + " already exists";
+  // }
   const defaultPackage = require(Path.join(__dirname, "package.json"));
   var ma = defaultPackage.makeApp;
+  console.log("Starting with default", ma);
   var depths = {};
   walkDependencies(packageName, true, (path, package, ancestors) => {
     const thisma = package.makeApp;
     if (!thisma) return;
-    depth = ancestors ? ancestors.length : 0;
-    arrays: [""];
-    objects: [""];
+    //console.log("Found my firend in ", path, thisma);
+    const depth = ancestors ? ancestors.length : 0;
+    const arrays = ["runEarly", "run", "runAfter", "runLate"];
+    const objects = ["submodules"];
     Object.keys(thisma).forEach(key => {
+      console.log("checking out key", key);
       const v = thisma[key];
-      if (arrays.indexOf[key] > -1) {
+      console.log("It has a value ", v);
+      if (arrays.indexOf(key) > -1) {
+        console.log("Adding to array ", key, v);
         if (!ma[key]) ma[key] = [];
-        ma[key].append(v);
-      } else if (objects.indexOf[key] > -1) {
+        if (typeof v == "string") {
+          ma[key].push(v);
+        } else if (v.length) {
+          ma[key] = [...ma[key], ...v];
+        }
+      } else if (objects.indexOf(key) > -1) {
+        console.log("Adding object at key", key, v);
         if (!ma[key]) ma[key] = {};
+        if (typeof v == "string") {
+          ma[key][v] = v;
+        } else {
+          ma[key] = { ...ma[key], ...v };
+        }
         ma[key] = v;
-      } else if (!ma[key] || !depth || (depths[key] && depths[key] > depth)) {
+      } else if (
+        !ma[key] ||
+        !depth ||
+        typeof depths[key] == "undefined" ||
+        (depths[key] && !(depths[key] < depth))
+      ) {
         ma[key] = v;
+        console.log("Replaing value ");
+      } else {
+        console.log("Skipping ", ma[key], depth, depths[key]);
       }
     });
   });
+  console.log("Final ma: ", ma);
   //First create the package. Do you have a creation option for me, or do I do this
-  if (ma.initializer) {
-    if (typeof ma.initializer == "string") {
-      ma.initializer = {
-        command: ma.initializer,
-        args: null
-      };
-    }
-    spawnSync(
-      ma.initializer.command,
-      [...ma.initializer.args, target],
-      spawnOptions
-    );
-  } else {
-    throw { message: "Could not get an initializer", obj: ma };
-  }
+  // if (ma.initializer) {
+  //   if (typeof ma.initializer == "string") {
+  //     ma.initializer = {
+  //       command: ma.initializer,
+  //       args: null
+  //     };
+  //   }
+  //   ma.initializer.args = ma.initializer.args ? ma.initializer.args : [];
+  //   cp.spawnSync(
+  //     ma.initializer.command,
+  //     [...ma.initializer.args, target],
+  //     spawnOptions
+  //   );
+  // } else {
+  //   throw { message: "Could not get an initializer", obj: ma };
+  // }
   process.chdir(target);
   //All following code will run from the newly created app as CWD
-  Object.keys(ma.dependencies).forEach(k => {
-    const v = ma.dependencies[k];
-    yarnif.addDependency(v);
-  });
-  Object.keys(ma.devDependencies).forEach(k => {
-    const v = ma.devDependencies[k];
-    yarnif.addDevDependency(v);
-  });
-  const packageObj = require(Path.resolve(packageName, "package.json"));
+  if (typeof ma.dependencies == "object")
+    Object.keys(ma.dependencies).forEach(k => {
+      const v = ma.dependencies[k];
+      yarnif.addDependency(v);
+    });
+  if (typeof ma.dependencies == "object")
+    Object.keys(ma.devDependencies).forEach(k => {
+      const v = ma.devDependencies[k];
+      yarnif.addDevDependency(v);
+    });
+
+  const packagePath = Path.resolve(packageName, "package.json");
+  const packageObj = require(packagePath);
   walkDependencies(process.cwd(), true, (path, package, ancestors) => {
-    const scripts = package && package.makeApp && package.makeApp.scripts;
+    const scripts =
+      (package && package.makeApp && package.makeApp.scripts) || {};
     Object.keys(scripts).forEach(k => {
       packageObj.scripts = packageObj.scripts || {};
       packageObj.scripts[k] = scripts[k];
     });
   });
+  fs.writeFileSync(packagePath, JSON.stringify(packageObj, null, 2));
   yarnif.addDependency("make-app");
   return process.cwd();
 }
