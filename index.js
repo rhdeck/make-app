@@ -122,7 +122,7 @@ function buildApp(packageName, target, args) {
   console.log("I am about to write to the packagePath", packagePath);
   fs.writeFileSync(packagePath, JSON.stringify(packageObj, null, 2));
   const thisPkg = require(Path.resolve(packageName, "package.json"));
-  yarnif.addDependency("link:" + packageName);
+  yarnif.addDependency("make-app");
   return process.cwd();
 }
 function initApp() {
