@@ -135,8 +135,9 @@ function buildApp(packageName, target, args) {
   return process.cwd();
 }
 function initApp() {
-  console.log("Starting initapp");
+  console.log("Starting initapp", process.cwd());
   //Find the subrunners
+  console.log("Starting runEarly");
   walkDependencies(process.cwd(), true, (path, package, ancestors) => {
     subRunner(package, "runEarly");
   });
@@ -144,13 +145,15 @@ function initApp() {
     Possible recursive copy code goes here
     const rc = require('recursive-copy');
   */
-
+  console.log("Starting run");
   walkDependencies(process.cwd(), true, (path, package, ancestors) => {
     subRunner(package, "run");
   });
+  console.log("Starting runLate");
   walkDependencies(process.cwd(), true, (path, package, ancestors) => {
     subRunner(package, "runLate");
   });
+  console.log("Starting runLast");
   walkDependencies(process.cwd(), true, (path, package, ancestors) => {
     subRunner(package, "runLast");
   });
