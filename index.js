@@ -16,7 +16,6 @@ getSpawnOptions = function() {
 const yarnif = require("yarnif");
 function subRunner(package, key) {
   if (!(package && package.makeApp)) return;
-  console.log("I was passed ", package.makeApp, key);
   runFromCommand(package.makeApp[key]);
 }
 function runFromCommand(cmd) {
@@ -54,8 +53,8 @@ function buildApp(packageName, target, args) {
     if (!thisma) return;
     //console.log("Found my firend in ", path, thisma);
     const depth = ancestors ? ancestors.length : 0;
-    const arrays = ["runEarly", "run", "runAfter", "runLate"];
-    const objects = ["submodules"];
+    const arrays = ["runEarly", "run", "runAfter", "runLate", "runLast"];
+    const objects = ["submodules", "dependencies"];
     Object.keys(thisma).forEach(key => {
       console.log("checking out key", key);
       const v = thisma[key];
@@ -67,6 +66,8 @@ function buildApp(packageName, target, args) {
           ma[key].push(v);
         } else if (v.length) {
           ma[key] = [...ma[key], ...v];
+        } else {
+          ma[key].push(v);
         }
       } else if (objects.indexOf(key) > -1) {
         console.log("Adding object at key", key, v);
@@ -124,8 +125,8 @@ function buildApp(packageName, target, args) {
   const packagePath = Path.resolve(process.cwd(), "package.json");
   const packageObj = require(packagePath);
   walkDependencies(process.cwd(), true, (path, package, ancestors) => {
-    const scripts =
-      (package && package.makeApp && package.makeApp.scripts) || {};
+    if (!(package && package.makeApp && package.makeApp.scripts)) return;
+    const scripts = package.makeApp.scripts;
     Object.keys(scripts).forEach(k => {
       packageObj.scripts = packageObj.scripts || {};
       packageObj.scripts[k] = scripts[k];
@@ -151,7 +152,6 @@ function initApp() {
   */
   console.log("Starting run");
   walkDependencies(process.cwd(), true, (path, package, ancestors) => {
-    console.log("working with path", path);
     subRunner(package, "run");
   });
   console.log("Starting runLate");

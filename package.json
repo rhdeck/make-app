@@ -27,7 +27,7 @@
       "command": "makePackage"
     },
     "scripts": {
-      "init": "./node_modules/.bin/initApp"
+      "initapp": "./node_modules/.bin/initApp"
     }
   },
   "bin": {
